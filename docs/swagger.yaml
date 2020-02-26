@@ -1,0 +1,227 @@
+definitions:
+  model.UserInfo:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      sayHello:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserModel:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  user.CreateRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  user.CreateResponse:
+    properties:
+      username:
+        type: string
+    type: object
+  user.ListRequest:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      username:
+        type: string
+    type: object
+  user.ListResponse:
+    properties:
+      totalCount:
+        type: integer
+      userList:
+        items:
+          $ref: '#/definitions/model.UserInfo'
+        type: array
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /sd/cpu:
+    get:
+      consumes:
+      - application/json
+      description: CPUCheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'OK - Load average: xx, xx, xx | Cores: x'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: CPUCheck checks the cpu usage.
+      tags:
+      - sd
+  /sd/disk:
+    get:
+      consumes:
+      - application/json
+      description: DiskCheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'OK - Free space: xxxMB (xxGB) / xxxMB (xxGB) | Used: xx%'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: DiskCheck checks the disk usage.
+      tags:
+      - sd
+  /sd/health:
+    get:
+      consumes:
+      - application/json
+      description: HealthCheck
+      responses:
+        "200":
+          description: 'OK '
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: HealthCheck shows `OK` as the ping-pong result.
+      tags:
+      - sd
+  /sd/ram:
+    get:
+      consumes:
+      - application/json
+      description: RAMCheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'OK - Free space: xxMB (xxGB) / xxMB (xxGB) | Used: xx%'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: RAMCheck checks the disk usage.
+      tags:
+      - sd
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: List users
+      parameters:
+      - description: List users
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.ListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"message":"OK","data":{"username":"admin"}}'
+          schema:
+            $ref: '#/definitions/user.ListResponse'
+      summary: List users in the database
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: Add a new user
+      parameters:
+      - description: Create a new user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"message":"OK","data":{"username":"admin"}}'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: Add new user to the database
+      tags:
+      - user
+  /user/:id:
+    delete:
+      consumes:
+      - application/json
+      description: Del a user
+      parameters:
+      - description: Delete a user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"message":"OK","data":{"username":"admin"}}'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: Delete a user from the database
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: Update user info
+      parameters:
+      - description: Update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"message":"OK","data":{"username":"admin"}}'
+          schema:
+            $ref: '#/definitions/model.UserModel'
+      summary: Update update a exist user account info.
+      tags:
+      - user
+  /user/:username:
+    get:
+      consumes:
+      - application/json
+      description: Get a user
+      parameters:
+      - description: Delete a user
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":0,"message":"OK","data":{"username":"admin"}}'
+          schema:
+            $ref: '#/definitions/user.CreateResponse'
+      summary: Get a user from the database
+      tags:
+      - user
+swagger: "2.0"

@@ -1,0 +1,5 @@
+build/*
+.idea
+vendor/*
+!/vendor/vendor.json
+**/*.out
