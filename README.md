@@ -118,7 +118,7 @@ govendor fetch golang.org/x/net/context
 
 ### How to start
 
-* git clone ssh://git@phabricator.graviti.cn:2224/source/voyager.git
+* git clone https://github.com/CadenOf/yager.git
 * govendor init
 * govendor add +e 
 * govendor sync
