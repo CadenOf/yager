@@ -25,7 +25,7 @@ var (
 //)
 const (
 	LogRemain int = 10
-	LogDir    = "/var/log/voyager"
+	LogDir    = "/var/log/yager"
 	ReqLogger logFieldKey = "rqlog"
 )
 

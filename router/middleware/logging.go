@@ -13,13 +13,13 @@ import (
 	//"fmt"
 	"io/ioutil"
 
-	//"voyager/router/middleware"
+	//"yager/router/middleware"
 	"regexp"
 	"time"
 
-	"voyager/handler"
-	"voyager/pkg/errno"
-	"voyager/pkg/logger"
+	"yager/handler"
+	"yager/pkg/errno"
+	"yager/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	//"github.com/lexkong/log"

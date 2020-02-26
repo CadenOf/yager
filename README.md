@@ -1,4 +1,4 @@
-# voyager
+# yager
 
 ### golang installation
 
@@ -63,7 +63,7 @@ govendor fetch golang.org/x/net/context
 ```
 * swagger init
 ```
-   $ cd xxx/pathto/voyager/
+   $ cd xxx/pathto/yager/
    $ swag init
 ```
 

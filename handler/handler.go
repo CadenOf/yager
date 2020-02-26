@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"voyager/pkg/errno"
+	"yager/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 )

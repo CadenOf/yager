@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER="voyager"
+SERVER="yager"
 BASE_DIR=$PWD
 INTERVAL=2
 

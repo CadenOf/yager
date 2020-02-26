@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"voyager/model"
+	"yager/model"
 
-	. "voyager/handler"
-	"voyager/pkg/errno"
-	"voyager/pkg/logger"
-	"voyager/util"
+	. "yager/handler"
+	"yager/pkg/errno"
+	"yager/pkg/logger"
+	"yager/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"

@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"voyager/handler"
-	"voyager/pkg/errno"
-	"voyager/pkg/token"
+	"yager/handler"
+	"yager/pkg/errno"
+	"yager/pkg/token"
 
 	"github.com/gin-gonic/gin"
 )

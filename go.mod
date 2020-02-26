@@ -1,4 +1,4 @@
-module voyager
+module yager
 
 go 1.13
 

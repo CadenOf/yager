@@ -2,11 +2,11 @@ package router
 
 import (
 	"net/http"
-	"voyager/handler/k8s"
-	"voyager/handler/sd"
+	"yager/handler/k8s"
+	"yager/handler/sd"
 
-	_ "voyager/docs"
-	"voyager/router/middleware"
+	_ "yager/docs"
+	"yager/router/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/gin-swagger"

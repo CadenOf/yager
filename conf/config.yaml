@@ -2,15 +2,15 @@
 service:
     runmode: release
     addr: :9090
-    name: voyager
+    name: yager
     url: http://127.0.0.1:9090
     maxPingCount: 10
     jwtSecret: 
 log:
     writers: file,stdout # file stdout
     logger_level: DEBUG # DEBUG、INFO、WARN、ERROR、FATAL
-    logger_file: /var/log/voyager/runtime.log
-    logger_path: /var/log/voyager # log path
+    logger_file: /var/log/yager/runtime.log
+    logger_path: /var/log/yager # log path
     log_format_text: false # false means json, true means text
     rollingPolicy: daily # daily or size
     log_rotate_date: 5
@@ -18,7 +18,7 @@ log:
     log_backup_count: 7
 logger:
     logRemain: 10 // Total days of log files to remain
-    logDir: "/var/log/voyager"
+    logDir: "/var/log/yager"
     reqLogger: "rqlog"
 k8s:
     HD2A:
@@ -35,7 +35,7 @@ k8s:
                 enable: true
                 name: 
 db:
-    name: voyager_server
+    name: yager_server
     addr: 127.0.0.1:3306
     username: username
     password: password

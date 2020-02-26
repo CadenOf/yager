@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"voyager/model"
-	"voyager/util"
+	"yager/model"
+	"yager/util"
 )
 
 func ListUser(username string, offset, limit int) ([]*model.UserInfo, uint64, error) {

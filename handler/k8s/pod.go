@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	. "voyager/handler"
-	"voyager/pkg/errno"
-	"voyager/pkg/logger"
-	"voyager/util"
+	. "yager/handler"
+	"yager/pkg/errno"
+	"yager/pkg/logger"
+	"yager/util"
 
 	apiv1 "k8s.io/api/core/v1"
 	//"k8s.io/apimachinery/pkg/api/errors"

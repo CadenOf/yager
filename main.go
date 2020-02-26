@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"voyager/config"
-	"voyager/pkg/logger"
-	v "voyager/pkg/version"
-	"voyager/router"
-	"voyager/router/middleware"
+	"yager/config"
+	"yager/pkg/logger"
+	v "yager/pkg/version"
+	"yager/router"
+	"yager/router/middleware"
 
 	"github.com/YueHonghui/rfw"
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	cfg     = pflag.StringP("config", "c", "", "voyager config file path.")
+	cfg     = pflag.StringP("config", "c", "", "yager config file path.")
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
 

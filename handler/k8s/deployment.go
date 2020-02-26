@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	. "voyager/handler"
-	"voyager/model"
-	"voyager/pkg/errno"
-	"voyager/pkg/logger"
-	"voyager/util"
+	. "yager/handler"
+	"yager/model"
+	"yager/pkg/errno"
+	"yager/pkg/logger"
+	"yager/util"
 
 	"github.com/spf13/viper"
 	appsv1 "k8s.io/api/apps/v1"

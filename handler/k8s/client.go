@@ -9,7 +9,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"voyager/pkg/logger"
+	"yager/pkg/logger"
 )
 
 type _client struct {
