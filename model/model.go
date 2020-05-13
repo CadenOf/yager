@@ -36,6 +36,10 @@ type KV struct {
 	Value string
 }
 
+type KVL struct {
+	Key    string
+	Values []string
+}
 type TsAndVersion struct {
 	CreateTs int64 `xorm:"created"`
 	UpdateTs int64 `xorm:"updated"`

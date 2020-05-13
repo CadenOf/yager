@@ -2,14 +2,14 @@ package router
 
 import (
 	"net/http"
-	"yager/handler/k8s"
-	"yager/handler/sd"
+	"voyager/handler/k8s"
+	"voyager/handler/sd"
 
-	_ "yager/docs"
-	"yager/router/middleware"
+	_ "voyager/docs"
+	"voyager/router/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/gin-swagger"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
@@ -45,6 +45,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 
 	deployment := g.Group("/v1/app/deployment")
 	{
+		deployment.GET("/:zone/:ns", k8s.ListDeployment)
 		deployment.GET("/:zone/:ns/:name", k8s.GetDeployment)
 		deployment.POST("/create", k8s.CreateDeployment)
 		deployment.DELETE("/:zone/:ns/:name", k8s.DeleteDeployment)

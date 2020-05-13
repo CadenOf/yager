@@ -17,15 +17,14 @@ var (
 	MetricsLog *logrus.Logger
 )
 
-
 //var (
 //	LogRemain = viper.GetInt("logger.logRemain") // Total days of log files to remain
 //	LogDir    = viper.GetString("logger.logDir")
 //	ReqLogger = logFieldKey(viper.GetString("logger.reqLogger"))
 //)
 const (
-	LogRemain int = 10
-	LogDir    = "/var/log/yager"
+	LogRemain int         = 10
+	LogDir                = "/var/log/voyager"
 	ReqLogger logFieldKey = "rqlog"
 )
 

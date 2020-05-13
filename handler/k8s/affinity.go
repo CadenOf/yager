@@ -1,14 +1,14 @@
 package k8s
 
 import (
-	"yager/model"
+	"voyager/model"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	//"github.com/spf13/viper"
 )
 
-func scheduleAffinity(dts *model.App) *apiv1.Affinity {
+func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
 	affinity := &apiv1.Affinity{
 		PodAntiAffinity: &apiv1.PodAntiAffinity{
 			PreferredDuringSchedulingIgnoredDuringExecution: []apiv1.WeightedPodAffinityTerm{
@@ -19,7 +19,7 @@ func scheduleAffinity(dts *model.App) *apiv1.Affinity {
 					PodAffinityTerm: apiv1.PodAffinityTerm{
 						LabelSelector: &metav1.LabelSelector{
 							MatchLabels: map[string]string{
-								"cloud.graviti.cn/appid": dts.AppID,
+								"paas.graviti.cn/appid": aff.AffMeta.AppID,
 							},
 						},
 						TopologyKey: "kubernetes.io/hostname",
@@ -31,16 +31,17 @@ func scheduleAffinity(dts *model.App) *apiv1.Affinity {
 
 	var nsTerms []apiv1.NodeSelectorTerm
 
-	nsTerms = append(nsTerms, apiv1.NodeSelectorTerm{
-		MatchExpressions: []apiv1.NodeSelectorRequirement{
-			{
-				Key:      "cloud.graviti.cn/cni",
-				Operator: apiv1.NodeSelectorOpIn,
-				Values:   []string{"flannel"},
+	for _, ns := range aff.Selector {
+		nsTerms = append(nsTerms, apiv1.NodeSelectorTerm{
+			MatchExpressions: []apiv1.NodeSelectorRequirement{
+				{
+					Key:      ns.Key,
+					Operator: apiv1.NodeSelectorOpIn,
+					Values:   ns.Values,
+				},
 			},
-		},
-	})
-
+		})
+	}
 	//nsTerms = append(nsTerms, cfgNodeSelectorTerms(grp)...)
 
 	if len(nsTerms) != 0 {
@@ -54,15 +55,16 @@ func scheduleAffinity(dts *model.App) *apiv1.Affinity {
 	return affinity
 }
 
-func scheduleToleration(dst *model.App) []apiv1.Toleration {
+func scheduleToleration(tol *model.TolerationStruct) []apiv1.Toleration {
 
 	var tols []apiv1.Toleration
-	tols = append(tols, apiv1.Toleration{
-		Key:      "node-role.kubernetes.io/master",
-		Operator: apiv1.TolerationOpEqual,
-		Value:    "",
-		Effect:   apiv1.TaintEffectNoSchedule,
-	})
-
+	for _, tl := range tol.Toleration {
+		tols = append(tols, apiv1.Toleration{
+			Key:      tl.Key,
+			Operator: apiv1.TolerationOpEqual,
+			Value:    tl.Value,
+			Effect:   apiv1.TaintEffectNoSchedule,
+		})
+	}
 	return tols
 }

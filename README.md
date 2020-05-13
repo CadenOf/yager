@@ -1,4 +1,4 @@
-# yager
+# voyager
 
 ### golang installation
 
@@ -63,7 +63,7 @@ govendor fetch golang.org/x/net/context
 ```
 * swagger init
 ```
-   $ cd xxx/pathto/yager/
+   $ cd xxx/pathto/voyager/
    $ swag init
 ```
 
@@ -118,7 +118,7 @@ govendor fetch golang.org/x/net/context
 
 ### How to start
 
-* git clone https://github.com/CadenOf/yager.git
+* git clone ssh://git@phabricator.graviti.cn:2224/source/voyager.git
 * govendor init
 * govendor add +e 
 * govendor sync

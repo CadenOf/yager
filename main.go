@@ -9,14 +9,15 @@ import (
 	"path/filepath"
 	"time"
 
-	"yager/config"
-	"yager/pkg/logger"
-	v "yager/pkg/version"
-	"yager/router"
-	"yager/router/middleware"
+	"voyager/config"
+	"voyager/pkg/logger"
+	v "voyager/pkg/version"
+	"voyager/router"
+	"voyager/router/middleware"
 
 	"github.com/YueHonghui/rfw"
 	"github.com/gin-gonic/gin"
+
 	//"github.com/lexkong/log"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -24,7 +25,7 @@ import (
 )
 
 var (
-	cfg     = pflag.StringP("config", "c", "", "yager config file path.")
+	cfg     = pflag.StringP("config", "c", "", "voyager config file path.")
 	version = pflag.BoolP("version", "v", false, "show version info.")
 )
 
@@ -57,8 +58,8 @@ func init() {
 		logrus.SetOutput(rfw)
 
 		logger.AccessLog = &logrus.Logger{
-			Out: rfw,
-			Level: logrus.InfoLevel,
+			Out:       rfw,
+			Level:     logrus.InfoLevel,
 			Formatter: &logrus.JSONFormatter{},
 		}
 		//defer rfw.Close()
@@ -102,7 +103,6 @@ func main() {
 			fmt.Printf("%v\n", err)
 			os.Exit(1)
 		}
-
 		fmt.Println(string(marshalled))
 		return
 	}
@@ -119,7 +119,6 @@ func main() {
 	router.Load(
 		// Cores.
 		g,
-
 		// Middlewares.
 		middleware.Logging(),
 		middleware.RequestId(),

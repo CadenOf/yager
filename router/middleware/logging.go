@@ -13,13 +13,13 @@ import (
 	//"fmt"
 	"io/ioutil"
 
-	//"yager/router/middleware"
+	//"voyager/router/middleware"
 	"regexp"
 	"time"
 
-	"yager/handler"
-	"yager/pkg/errno"
-	"yager/pkg/logger"
+	"voyager/handler"
+	"voyager/pkg/errno"
+	"voyager/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 	//"github.com/lexkong/log"
@@ -81,7 +81,7 @@ func Logging() gin.HandlerFunc {
 		end := time.Now().UTC()
 		latency := end.Sub(start)
 
-		code,message := -1, ""
+		code, message := -1, ""
 
 		// get code and message
 		var response handler.Response
@@ -96,10 +96,10 @@ func Logging() gin.HandlerFunc {
 		log := logger.AccessLog
 		log.WithFields(logrus.Fields{
 			"latency": latency,
-			"client": ip,
-			"method": method,
-			"path": path,
-			"code": code,
+			"client":  ip,
+			"method":  method,
+			"path":    path,
+			"code":    code,
 		}).Info(message)
 		fmt.Print("loging stop ....\n")
 	}
