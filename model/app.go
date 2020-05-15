@@ -1,5 +1,9 @@
 package model
 
+import (
+	apiv1 "k8s.io/api/core/v1"
+)
+
 // common struct
 
 type AppMetaInfo struct {
@@ -12,31 +16,32 @@ type AppMetaInfo struct {
 }
 
 type AppSpecInfo struct {
-	Replicas      int32 `json:"replicas" binding:"required" `
-	Annotations   []KV  `xorm:"TEXT json"`
-	Toleration    []KV  `xorm:"TEXT json"`
-	NodeSelector  []KVL `xorm:"TEXT json" binding:"required`
-	ContainerSpec ContainerInfo
+	Replicas      int32         `json:"replicas" binding:"required" `
+	Annotations   []KV          `xorm:"TEXT json"`
+	Tolerations   []KV          `json:"tolerations"`
+	NodeSelector  []KVL         `json:"nodeSelector" binding:"required`
+	ContainerSpec ContainerInfo `json:"containerSpec"`
 }
 
 type ContainerInfo struct {
-	CPU         float64 `xorm:"name cpu"`
-	Mem         int64
-	DiskSize    int64
-	Command     string
-	Args        []string `xorm:"TEXT json"`
-	Image       string   `json:"image" binding:"required"`
-	Envs        []KV     `xorm:"TEXT json"`
-	HealthCheck string   `json:"healthCheck"`
+	CPU         float64             `xorm:"name cpu" binding:"required"`
+	Mem         int64               `json:"mem" binding:"required"`
+	DiskSize    int64               `json:"diskSize"`
+	Command     string              `json:"command"`
+	Args        []string            `json:"args"`
+	Image       string              `json:"image" binding:"required"`
+	Envs        []KV                `json:"envs"`
+	HealthCheck string              `json:"healthCheck"`
+	Volumes     []apiv1.VolumeMount `json:"volumes,omitempty"`
 }
 
 // common struct
-type AffinityStruct struct {
+type AffinityInfo struct {
 	AffMeta  AppMetaInfo
-	Selector []KVL `xorm:"TEXT json"`
+	Selector []KVL `json:"nodeSelector"`
 }
 
-type TolerationStruct struct {
+type TolerationInfo struct {
 	TolerMeta  AppMetaInfo
 	Toleration []KV `xorm:"TEXT json"`
 }

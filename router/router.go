@@ -61,5 +61,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 
 	}
 
+	service := g.Group("/v1/app/service")
+	{
+		service.GET("/:zone/:ns", k8s.ListService)
+		service.GET("/:zone/:ns/:name", k8s.GetService)
+		service.POST("/create", k8s.CreateService)
+		service.DELETE("/:zone/:ns/:name", k8s.DeleteService)
+	}
 	return g
 }

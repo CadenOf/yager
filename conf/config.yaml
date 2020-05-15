@@ -2,15 +2,15 @@
 service:
     runmode: release
     addr: :9090
-    name: yager
+    name: voyager
     url: http://127.0.0.1:9090
     maxPingCount: 10
-    jwtSecret: 
+    jwtSecret: Gty9BCdaefn2mB4mgvJEANPZZQSaJWNLijxR49qRgq0iBb9
 log:
     writers: file,stdout # file stdout
     logger_level: DEBUG # DEBUG、INFO、WARN、ERROR、FATAL
-    logger_file: /var/log/yager/runtime.log
-    logger_path: /var/log/yager # log path
+    logger_file: /var/log/voyager/runtime.log
+    logger_path: /var/log/voyager # log path
     log_format_text: false # false means json, true means text
     rollingPolicy: daily # daily or size
     log_rotate_date: 5
@@ -18,12 +18,12 @@ log:
     log_backup_count: 7
 logger:
     logRemain: 10 // Total days of log files to remain
-    logDir: "/var/log/yager"
+    logDir: "/var/log/voyager"
     reqLogger: "rqlog"
 k8s:
-    HD2A:
-        host: https://k8s.apiserver:443
-        token: 
+    AliCloud-HD2A:
+        host: https://101.132.137.201:6443
+        token: eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi10b2tlbi05end4aCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJhZG1pbiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImM3OGZlOTFkLWMzYzAtMTFlOS04YzAzLTAwMTYzZTFjOGMzYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTphZG1pbiJ9.awCz2ABCo5Hsb5BXD4BqMjCRxlty9IfNsfLV0kX053HdtNI-QJ696ykdLYj36qeEm2EA5QAG8BNpdDGAJj9YwZyZw1UVyPo8YHCbIn6UDx0IQ0zEYUwvmAGSugG6vzMzdeYSji7WtNjW2V_BiJyX-ofA5K1kQEnpqmxKUbJAUxx3CNbzxNtOrjZ5Pu1mdjZHUGFUG_gdv9oGCETDEkragiVOyuwrLACAA3-a_TSJJbbRj72fkhZIO8C2fG_hrmUBfXiI4-LOYZtS88UUQYS5U8ktF9CgVcYYXnzLcqLDYyiArgBDmypuI4wlpuVb-_JJZWZns6A2PWEDvZ6g_Z5pHg
         timeout: 8
         resource:
             cpuOverCommitRate: 2.0
@@ -33,9 +33,22 @@ k8s:
         container:
             imagePullSecret:
                 enable: true
-                name: 
+                name: acr-image-pull-secret-vpc
+    Graviti-Matrix:
+        host: https://192.168.66.196:443
+        token: eyJhbGciOiJSUzI1NiIsImtpZCI6IldIR3F3UDctSUdJdGZvVHUtUTFaZHdCSEVFTFB1aExkYUVWVjIya3BZZUEifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJjbHVzdGVyLWFkbWluLXRva2VuLXc0ZHdyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImNsdXN0ZXItYWRtaW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI5M2Q1Njk3ZS1lOWQ3LTQzYjYtYWNiYS1mOTM5ZGQzYWI2NGYiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06Y2x1c3Rlci1hZG1pbiJ9.pAC_xz3DAs8eOV4v467SuHcTqu-rZsD9js035mC4G0IiLXfgeyo_bE1pI8XzizAPzpmuBVTtfPbHKdKfzhF_U7STfrFjGU4L5uKwAhW62yzepTS3qfB1TOFmwk84SC5pMFdmkVrOtMlWIT9P6y_B7sjyP9p5bcENbZA1DccuyQoOgKapEgRLK-3OWcMJA0XEH5ZA-58hsAO8JfIQSGgoVV-uQ5HckkFcpuudjqMBDt3LbjrfTgv4rq4PGfnw0TPIzu5ISj7zhfvxtxdgrrwey-JeCyh3VP0gVMErzICJkXpED1PpxaTeOyEQGyOI7MO6uC9RmDhCWn0yyNXMRER76Q
+        timeout: 8
+        resource:
+            cpuOverCommitRate: 2.0
+            memOverCommitRate: 2.0
+            cpuBurstRate: 1
+            memBurstRate: 1
+        container:
+            imagePullSecret:
+                enable: true
+                name: harbor-matrix
 db:
-    name: yager_server
+    name: voyager_server
     addr: 127.0.0.1:3306
-    username: username
-    password: password
+    username: root
+    password: Water!nHo13

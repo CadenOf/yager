@@ -51,11 +51,11 @@ func FromCtx(ctx context.Context) *logrus.Entry {
 	return logrus.NewEntry(Log)
 }
 
-func MetricsEmit(method, reqId string, latency float32, success bool) {
+func MetricsEmit(method, reqID string, latency float32, success bool) {
 	MetricsLog.WithFields(logrus.Fields{
 		"topic":   "trace",
 		"method":  method,
-		"reqId":   reqId,
+		"reqID":   reqID,
 		"latency": latency,
 		"success": success,
 	}).Info()

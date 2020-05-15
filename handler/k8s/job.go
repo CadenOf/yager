@@ -46,7 +46,7 @@ func GetJob(ctx *gin.Context) {
 		return
 	}
 	logger.MetricsEmit(
-		"k8s.get_job",
+		JOB_CONST.K8S_LOG_Method_GetJob,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == err,
@@ -81,7 +81,7 @@ func CreateJob(ctx *gin.Context) {
 		return
 	}
 	logger.MetricsEmit(
-		"k8s.create_jobs",
+		JOB_CONST.K8S_LOG_Method_CreateJob,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == err,
@@ -112,7 +112,7 @@ func DeleteJob(ctx *gin.Context) {
 		PropagationPolicy: &deletePolicy,
 	})
 	logger.MetricsEmit(
-		"k8s.delete_jobs",
+		JOB_CONST.K8S_LOG_Method_DeleteJob,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == nil || errors.IsNotFound(err),
@@ -134,14 +134,18 @@ func DeleteJob(ctx *gin.Context) {
 
 func makeupJobData(ctx *gin.Context, jobModel *model.Job) *batchv1.Job {
 	log := logger.RuntimeLog
-	var affinity *model.AffinityStruct
+	var affinity *model.AffinityInfo
+	var tolerations *model.TolerationInfo
 	jobMeta := jobModel.JobMeta.AppMeta
 	jobSpec := jobModel.JobSpec.AppSpec
 
+	affinity = &model.AffinityInfo{}
 	affinity.AffMeta = jobMeta
 	affinity.Selector = jobSpec.NodeSelector
-	// toleration.TolerMeta = jobMeta
-	// toleration.Toleration = jobSpec.Toleration
+
+	tolerations = &model.TolerationInfo{}
+	tolerations.TolerMeta = jobMeta
+	tolerations.Toleration = jobSpec.Tolerations
 
 	// init annotations
 	annotations := map[string]string{
@@ -156,6 +160,15 @@ func makeupJobData(ctx *gin.Context, jobModel *model.Job) *batchv1.Job {
 	if viper.GetBool(fmt.Sprintf("k8s.%s.container.imagePullSecret.enable", jobMeta.ZoneName)) {
 		imagePullSecretName = []apiv1.LocalObjectReference{{
 			Name: viper.GetString(fmt.Sprintf("k8s.%s.container.imagePullSecret.name", jobMeta.ZoneName))}}
+	}
+
+	// init envs
+	envs := generateEnvs(&jobMeta, jobSpec.ContainerSpec.Envs)
+
+	// init volumes
+	specVolumes, containerVolumes, err := createVolumes(&jobMeta)
+	if err != nil {
+		SendResponse(ctx, err, nil)
 	}
 
 	// init args
@@ -193,7 +206,7 @@ func makeupJobData(ctx *gin.Context, jobModel *model.Job) *batchv1.Job {
 					SecurityContext: &apiv1.PodSecurityContext{
 						FSGroup: int64Ptr(2000),
 					},
-					//Volumes:          volumes,
+					Volumes:          specVolumes,
 					ImagePullSecrets: imagePullSecretName,
 					RestartPolicy:    "Never",
 					Containers: []apiv1.Container{
@@ -207,7 +220,7 @@ func makeupJobData(ctx *gin.Context, jobModel *model.Job) *batchv1.Job {
 							//	"-stderr", "/mnt/mesos/sandbox/stderr",
 							//	"-cmd", ss.Command,
 							//	"-args", args},
-							//Env:     envs,
+							Env: envs,
 							//EnvFrom: envFromSource(),
 							Resources: apiv1.ResourceRequirements{
 								Limits: apiv1.ResourceList{
@@ -224,12 +237,12 @@ func makeupJobData(ctx *gin.Context, jobModel *model.Job) *batchv1.Job {
 									Add: []apiv1.Capability{"SYS_ADMIN"},
 								},
 							},
-							//VolumeMounts: volumeMounts,
+							VolumeMounts: containerVolumes,
 						},
 					},
-					DNSPolicy: apiv1.DNSDefault,
-					Affinity:  scheduleAffinity(affinity),
-					// Tolerations: scheduleToleration(toleration),
+					DNSPolicy:   apiv1.DNSDefault,
+					Affinity:    scheduleAffinity(affinity),
+					Tolerations: scheduleToleration(tolerations),
 				},
 			},
 			//VolumeClaimTemplates: pvcs,

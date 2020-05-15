@@ -43,12 +43,13 @@ func GetDeployment(ctx *gin.Context) {
 
 	startAt := time.Now()
 	dps, err := kclient.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+
 	if err != nil {
-		SendResponse(ctx, err, "failed to get deployment info.")
+		SendResponse(ctx, err, "Failed to get deployment info.")
 		return
 	}
 	logger.MetricsEmit(
-		"k8s.get_dps",
+		DEP_CONST.K8S_LOG_Method_GetDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == err,
@@ -67,16 +68,17 @@ func ListDeployment(ctx *gin.Context) {
 	if err != nil {
 		log.WithError(err)
 		SendResponse(ctx, errno.ErrTokenInvalid, nil)
+		return
 	}
 
 	startAt := time.Now()
 	dep, err := kclient.AppsV1().Deployments(namespace).List(metav1.ListOptions{})
 	if err != nil {
-		SendResponse(ctx, err, "failed to get deployment info.")
+		SendResponse(ctx, err, "Failed to list deployments info.")
 		return
 	}
 	logger.MetricsEmit(
-		"k8s.get_dep",
+		DEP_CONST.K8S_LOG_Method_ListDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == err,
@@ -106,13 +108,14 @@ func CreateDeployment(ctx *gin.Context) {
 	}
 
 	startAt := time.Now() // used to record operation time cost
+
 	_, err = kclient.AppsV1().Deployments(depNamespace).Create(makeupDeploymentData(ctx, depModel))
 	if err != nil {
-		SendResponse(ctx, err, "create deployment fail.")
+		SendResponse(ctx, err, "Create deployment fail.")
 		return
 	}
 	logger.MetricsEmit(
-		"k8s.create_dep",
+		DEP_CONST.K8S_LOG_Method_CreateDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == err,
@@ -123,12 +126,12 @@ func CreateDeployment(ctx *gin.Context) {
 // DeleteDeployment delete deployment instance
 func DeleteDeployment(ctx *gin.Context) {
 	log := logger.RuntimeLog
-	zoneName := ctx.Param("zone")
-	namespace := ctx.Param("ns")
-	name := ctx.Param("name")
+	depZone := ctx.Param("zone")
+	depNamespace := ctx.Param("ns")
+	depName := ctx.Param("name")
 
 	// fetch k8s-client handler by zoneName
-	kclient, err := GetClientByAzCode(zoneName)
+	kclient, err := GetClientByAzCode(depZone)
 	if err != nil {
 		SendResponse(ctx, errno.ErrBind, nil)
 		return
@@ -138,24 +141,27 @@ func DeleteDeployment(ctx *gin.Context) {
 	deletePolicy := metav1.DeletePropagationForeground
 
 	startAt := time.Now()
-	err = kclient.AppsV1().Deployments(namespace).Delete(name, &metav1.DeleteOptions{
+	err = kclient.AppsV1().Deployments(depNamespace).Delete(depName, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	})
 	logger.MetricsEmit(
-		"k8s.delete_dts",
+		DEP_CONST.K8S_LOG_Method_DeleteDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		err == nil || errors.IsNotFound(err),
 	)
 	if errors.IsNotFound(err) {
-		log.Infof("Statefulset %s not found in k8s", name)
+		log.Infof("Deployment %s not found in k8s", depName)
 		SendResponse(ctx, err, nil)
+		return
 	}
 	if err != nil {
 		SendResponse(ctx, err, nil)
+		return
 	}
 
-	SendResponse(ctx, errno.OK, nil)
+	delDepResData := fmt.Sprintf("Deployment %s success deleted.", depName)
+	SendResponse(ctx, errno.OK, delDepResData)
 }
 
 // ScaleDeployment scale num of deployment replicaset
@@ -173,26 +179,33 @@ func ScaleDeployment(ctx *gin.Context) {
 		return
 	}
 
+	var lastReplicas int32
 	startAt := time.Now()
 	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		// fetch deployment template data by its namespace & deploymentName
-		result, err := kclient.AppsV1().Deployments(scaleMeta.Namespace).Get(scaleMeta.Name, metav1.GetOptions{})
+		currentTemp, err := kclient.AppsV1().Deployments(scaleMeta.Namespace).Get(scaleMeta.Name, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
 
-		*result.Spec.Replicas = scaleDep.Replicas
-		_, err = kclient.AppsV1().Deployments(scaleMeta.Namespace).Update(result)
+		lastReplicas = *currentTemp.Spec.Replicas
+		fmt.Println(lastReplicas)
+		*currentTemp.Spec.Replicas = scaleDep.Replicas
+		_, err = kclient.AppsV1().Deployments(scaleMeta.Namespace).Update(currentTemp)
 		return err
 	})
 	logger.MetricsEmit(
-		"k8s.scale_sts",
+		DEP_CONST.K8S_LOG_Method_ScaleDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		retryErr == nil,
 	)
 
-	SendResponse(ctx, retryErr, nil)
+	scaleDepResData := fmt.Sprintf("Deployment %s success scale from %d to %d .",
+		scaleMeta.Name,
+		lastReplicas,
+		scaleDep.Replicas)
+	SendResponse(ctx, retryErr, scaleDepResData)
 }
 
 // UpdateDeployment update deployment instance exisited
@@ -236,7 +249,7 @@ func UpdateDeployment(ctx *gin.Context) {
 	})
 
 	logger.MetricsEmit(
-		"k8s.update_dep",
+		DEP_CONST.K8S_LOG_Method_UpdateDeployment,
 		util.GetReqID(ctx),
 		float32(time.Since(startAt)/time.Millisecond),
 		retryErr == err,
@@ -245,23 +258,26 @@ func UpdateDeployment(ctx *gin.Context) {
 		SendResponse(ctx, retryErr, "nil")
 		return
 	}
-	SendResponse(ctx, errno.OK, nil)
+	updateDepResData := fmt.Sprintf("Deployment %s success updated.", depName)
+	SendResponse(ctx, errno.OK, updateDepResData)
 }
 
 // Makeup Deployment TemplateData
 func makeupDeploymentData(ctx *gin.Context, depModel *model.Deployment) *appsv1.Deployment {
 
 	log := logger.RuntimeLog
-	var affinity *model.AffinityStruct
-	// var toleration *model.TolerationStruct
+	var affinity *model.AffinityInfo
+	var tolerations *model.TolerationInfo
 	depMeta := depModel.DepMeta.AppMeta
 	depSpec := depModel.DepSpec.AppSpec
 
-	affinity = &model.AffinityStruct{}
+	affinity = &model.AffinityInfo{}
 	affinity.AffMeta = depMeta
 	affinity.Selector = depSpec.NodeSelector
-	// toleration.TolerMeta = *depMeta
-	// toleration.Toleration = depSpec.Toleration
+
+	tolerations = &model.TolerationInfo{}
+	tolerations.TolerMeta = depMeta
+	tolerations.Toleration = depSpec.Tolerations
 
 	// init annotations
 	annotations := map[string]string{
@@ -278,6 +294,15 @@ func makeupDeploymentData(ctx *gin.Context, depModel *model.Deployment) *appsv1.
 			Name: viper.GetString(fmt.Sprintf("k8s.%s.container.imagePullSecret.name", depMeta.ZoneName))}}
 	}
 
+	// init envs
+	envs := generateEnvs(&depMeta, depSpec.ContainerSpec.Envs)
+
+	// init volumes
+	specVolumes, containerVolumes, err := createVolumes(&depMeta)
+	if err != nil {
+		SendResponse(ctx, err, nil)
+	}
+
 	// init args
 	//args, err := argsJson(appDs.Args)
 	//if err != nil {
@@ -285,7 +310,7 @@ func makeupDeploymentData(ctx *gin.Context, depModel *model.Deployment) *appsv1.
 	//	return err
 	//}
 
-	// makeup overall subset
+	// init overall subset
 	depSet := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        depMeta.Name,
@@ -310,19 +335,21 @@ func makeupDeploymentData(ctx *gin.Context, depModel *model.Deployment) *appsv1.
 						FSGroup: int64Ptr(2000),
 					},
 					ImagePullSecrets: imagePullSecretName,
+					Volumes:          specVolumes,
 					Containers: []apiv1.Container{
 						{
 							Name:  depMeta.Name,
 							Image: depSpec.ContainerSpec.Image,
 							//Command: []string{cinitEntrypoint},
 							//Args: []string{
-							//	"-logdir", "/mnt/mesos/sandbox",
-							//	"-stdout", "/mnt/mesos/sandbox/stdout",
-							//	"-stderr", "/mnt/mesos/sandbox/stderr",
+							//	"-logdir", "/mnt/k8s/sandbox",
+							//	"-stdout", "/mnt/k8s/sandbox/stdout",
+							//	"-stderr", "/mnt/k8s/sandbox/stderr",
 							//	"-cmd", ss.Command,
 							//	"-args", args},
-							//Env:     envs,
-							//EnvFrom: envFromSource(),
+							Env: envs,
+							// EnvFrom: envFromSource(),
+							VolumeMounts: containerVolumes,
 							Resources: apiv1.ResourceRequirements{
 								Limits: apiv1.ResourceList{
 									apiv1.ResourceCPU:    *apiresource.NewMilliQuantity(limitCPU(depSpec.ContainerSpec.CPU, depMeta.ZoneName), apiresource.DecimalSI),
@@ -340,9 +367,9 @@ func makeupDeploymentData(ctx *gin.Context, depModel *model.Deployment) *appsv1.
 							},
 						},
 					},
-					DNSPolicy: apiv1.DNSDefault,
-					Affinity:  scheduleAffinity(affinity),
-					// Tolerations: scheduleToleration(toleration),
+					DNSPolicy:   apiv1.DNSDefault,
+					Affinity:    scheduleAffinity(affinity),
+					Tolerations: scheduleToleration(tolerations),
 				},
 			},
 		},

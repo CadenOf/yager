@@ -2,13 +2,15 @@ package k8s
 
 import (
 	"voyager/model"
+	CONST "voyager/pkg/constvar"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	//"github.com/spf13/viper"
 )
 
-func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
+// Setting podAntiAffinity & nodeAffinity
+func scheduleAffinity(aff *model.AffinityInfo) *apiv1.Affinity {
+	// pod anti-affinity scheduling rules , avoid putting the same pods in the same node
 	affinity := &apiv1.Affinity{
 		PodAntiAffinity: &apiv1.PodAntiAffinity{
 			PreferredDuringSchedulingIgnoredDuringExecution: []apiv1.WeightedPodAffinityTerm{
@@ -19,7 +21,7 @@ func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
 					PodAffinityTerm: apiv1.PodAffinityTerm{
 						LabelSelector: &metav1.LabelSelector{
 							MatchLabels: map[string]string{
-								"paas.graviti.cn/appid": aff.AffMeta.AppID,
+								CONST.K8S_RESOURCE_ANNOTATION_appid: aff.AffMeta.AppID,
 							},
 						},
 						TopologyKey: "kubernetes.io/hostname",
@@ -29,8 +31,8 @@ func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
 		},
 	}
 
+	// nodeAffinity
 	var nsTerms []apiv1.NodeSelectorTerm
-
 	for _, ns := range aff.Selector {
 		nsTerms = append(nsTerms, apiv1.NodeSelectorTerm{
 			MatchExpressions: []apiv1.NodeSelectorRequirement{
@@ -42,8 +44,6 @@ func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
 			},
 		})
 	}
-	//nsTerms = append(nsTerms, cfgNodeSelectorTerms(grp)...)
-
 	if len(nsTerms) != 0 {
 		affinity.NodeAffinity = &apiv1.NodeAffinity{
 			RequiredDuringSchedulingIgnoredDuringExecution: &apiv1.NodeSelector{
@@ -55,7 +55,7 @@ func scheduleAffinity(aff *model.AffinityStruct) *apiv1.Affinity {
 	return affinity
 }
 
-func scheduleToleration(tol *model.TolerationStruct) []apiv1.Toleration {
+func scheduleToleration(tol *model.TolerationInfo) []apiv1.Toleration {
 
 	var tols []apiv1.Toleration
 	for _, tl := range tol.Toleration {
